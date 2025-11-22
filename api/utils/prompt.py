@@ -2,7 +2,7 @@ import json
 from enum import Enum
 from typing import Any, List, Optional
 
-from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
+from google.genai import types
 from pydantic import BaseModel, ConfigDict
 
 from .attachment import ClientAttachment
@@ -12,6 +12,7 @@ class ToolInvocationState(str, Enum):
     CALL = 'call'
     PARTIAL_CALL = 'partial-call'
     RESULT = 'result'
+
 
 class ToolInvocation(BaseModel):
     state: ToolInvocationState
@@ -45,136 +46,102 @@ class ClientMessage(BaseModel):
     toolInvocations: Optional[List[ToolInvocation]] = None
 
 
-def convert_to_openai_messages(messages: List[ClientMessage]) -> List[ChatCompletionMessageParam]:
-    openai_messages = []
+def convert_to_gemini_messages(messages: List[ClientMessage]) -> List[types.Content]:
+    """Convert client messages to Gemini Content format."""
+    gemini_messages = []
 
     for message in messages:
-        message_parts: List[dict] = []
-        tool_calls = []
-        tool_result_messages = []
+        parts: List[types.Part] = []
+
+        # Map roles: Gemini uses "user" and "model"
+        role = "model" if message.role == "assistant" else "user"
 
         if message.parts:
             for part in message.parts:
                 if part.type == 'text':
-                    # Ensure empty strings default to ''
-                    message_parts.append({
-                        'type': 'text',
-                        'text': part.text or ''
-                    })
+                    text_content = part.text or ''
+                    if text_content:
+                        parts.append(types.Part.from_text(text=text_content))
 
                 elif part.type == 'file':
                     if part.contentType and part.contentType.startswith('image') and part.url:
-                        message_parts.append({
-                            'type': 'image_url',
-                            'image_url': {
-                                'url': part.url
-                            }
-                        })
+                        # Handle base64 data URLs
+                        if part.url.startswith('data:'):
+                            # Extract mime type and base64 data
+                            header, data = part.url.split(',', 1)
+                            mime_type = header.split(':')[1].split(';')[0]
+                            import base64
+                            image_bytes = base64.b64decode(data)
+                            parts.append(types.Part.from_bytes(
+                                data=image_bytes,
+                                mime_type=mime_type
+                            ))
+                        else:
+                            # For URLs, include as text reference
+                            parts.append(types.Part.from_text(text=f"[Image: {part.url}]"))
                     elif part.url:
-                        # Fall back to including the URL as text if we cannot map the file directly.
-                        message_parts.append({
-                            'type': 'text',
-                            'text': part.url
-                        })
+                        parts.append(types.Part.from_text(text=part.url))
 
                 elif part.type.startswith('tool-'):
-                    tool_call_id = part.toolCallId
-                    tool_name = part.toolName or part.type.replace('tool-', '', 1)
-
-                    if tool_call_id and tool_name:
-                        should_emit_tool_call = False
-
-                        if part.state and any(keyword in part.state for keyword in ('call', 'input')):
-                            should_emit_tool_call = True
-
-                        if part.input is not None or part.args is not None:
-                            should_emit_tool_call = True
-
-                        if should_emit_tool_call:
-                            arguments = part.input if part.input is not None else part.args
-                            if isinstance(arguments, str):
-                                serialized_arguments = arguments
-                            else:
-                                serialized_arguments = json.dumps(arguments or {})
-
-                            tool_calls.append({
-                                "id": tool_call_id,
-                                "type": "function",
-                                "function": {
-                                    "name": tool_name,
-                                    "arguments": serialized_arguments
-                                }
-                            })
-
-                        if part.state == 'output-available' and part.output is not None:
-                            tool_result_messages.append({
-                                "role": "tool",
-                                "tool_call_id": tool_call_id,
-                                "content": json.dumps(part.output),
-                            })
+                    # Handle tool-related parts
+                    if part.state == 'output-available' and part.output is not None:
+                        # This is a tool result - create a function response
+                        parts.append(types.Part.from_function_response(
+                            name=part.toolName or "unknown",
+                            response={"result": part.output}
+                        ))
 
         elif message.content is not None:
-            message_parts.append({
-                'type': 'text',
-                'text': message.content
-            })
+            parts.append(types.Part.from_text(text=message.content))
 
+        # Handle attachments
         if not message.parts and message.experimental_attachments:
             for attachment in message.experimental_attachments:
                 if attachment.contentType.startswith('image'):
-                    message_parts.append({
-                        'type': 'image_url',
-                        'image_url': {
-                            'url': attachment.url
-                        }
-                    })
-
+                    if attachment.url.startswith('data:'):
+                        header, data = attachment.url.split(',', 1)
+                        mime_type = header.split(':')[1].split(';')[0]
+                        import base64
+                        image_bytes = base64.b64decode(data)
+                        parts.append(types.Part.from_bytes(
+                            data=image_bytes,
+                            mime_type=mime_type
+                        ))
+                    else:
+                        parts.append(types.Part.from_text(text=f"[Image: {attachment.url}]"))
                 elif attachment.contentType.startswith('text'):
-                    message_parts.append({
-                        'type': 'text',
-                        'text': attachment.url
-                    })
+                    parts.append(types.Part.from_text(text=attachment.url))
 
-        if(message.toolInvocations):
-            for toolInvocation in message.toolInvocations:
-                tool_calls.append({
-                    "id": toolInvocation.toolCallId,
-                    "type": "function",
-                    "function": {
-                        "name": toolInvocation.toolName,
-                        "arguments": json.dumps(toolInvocation.args)
-                    }
-                })
+        # Handle tool invocations
+        if message.toolInvocations:
+            for tool_invocation in message.toolInvocations:
+                # Add function call
+                parts.append(types.Part.from_function_call(
+                    name=tool_invocation.toolName,
+                    args=tool_invocation.args if isinstance(tool_invocation.args, dict) else {}
+                ))
 
-        if message_parts:
-            if len(message_parts) == 1 and message_parts[0]['type'] == 'text':
-                content_payload = message_parts[0]['text']
-            else:
-                content_payload = message_parts
-        else:
-            # Ensure that we always provide some content for OpenAI
-            content_payload = ""
+            # Add tool results as a separate user message
+            for tool_invocation in message.toolInvocations:
+                if tool_invocation.result is not None:
+                    gemini_messages.append(types.Content(
+                        role=role,
+                        parts=parts
+                    ))
+                    parts = []
+                    gemini_messages.append(types.Content(
+                        role="user",
+                        parts=[types.Part.from_function_response(
+                            name=tool_invocation.toolName,
+                            response={"result": tool_invocation.result}
+                        )]
+                    ))
 
-        openai_message: ChatCompletionMessageParam = {
-            "role": message.role,
-            "content": content_payload,
-        }
+        # Only add message if we have parts
+        if parts:
+            gemini_messages.append(types.Content(
+                role=role,
+                parts=parts
+            ))
 
-        if tool_calls:
-            openai_message["tool_calls"] = tool_calls
-
-        openai_messages.append(openai_message)
-
-        if(message.toolInvocations):
-            for toolInvocation in message.toolInvocations:
-                tool_message = {
-                    "role": "tool",
-                    "tool_call_id": toolInvocation.toolCallId,
-                    "content": json.dumps(toolInvocation.result),
-                }
-
-                openai_messages.append(tool_message)
-
-        openai_messages.extend(tool_result_messages)
-
-    return openai_messages
+    return gemini_messages

@@ -9,10 +9,10 @@ importers:
   .:
     dependencies:
       '@ai-sdk/react':
-        specifier: ^2.0.76
-        version: 2.0.99(react@18.2.0)(zod@3.21.4)
+        specifier: ^2.0.99
+        version: 2.0.99(react@18.2.0)(zod@4.1.12)
       '@radix-ui/react-slot':
-        specifier: ^1.1.0
+        specifier: ^1.2.4
         version: 1.2.4(@types/react@18.2.7)(react@18.2.0)
       '@types/node':
         specifier: 20.2.4
@@ -24,25 +24,25 @@ importers:
         specifier: 18.2.4
         version: 18.2.4
       '@vercel/analytics':
-        specifier: ^1.3.1
+        specifier: ^1.5.0
         version: 1.5.0(next@13.4.4(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
       '@vercel/kv':
         specifier: ^2.0.0
         version: 2.0.0
       ai:
-        specifier: ^5.0.76
-        version: 5.0.99(zod@3.21.4)
+        specifier: ^5.0.99
+        version: 5.0.99(zod@4.1.12)
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.23)
       class-variance-authority:
-        specifier: ^0.7.0
+        specifier: ^0.7.1
         version: 0.7.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
       concurrently:
-        specifier: ^8.0.1
+        specifier: ^8.2.2
         version: 8.2.2
       date-fns:
         specifier: ^4.1.0
@@ -54,10 +54,10 @@ importers:
         specifier: 13.4.4
         version: 13.4.4(eslint@8.41.0)(typescript@5.0.4)
       framer-motion:
-        specifier: ^11.11.17
+        specifier: ^11.18.2
         version: 11.18.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       geist:
-        specifier: ^1.3.1
+        specifier: ^1.5.1
         version: 1.5.1(next@13.4.4(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))
       lucide-react:
         specifier: ^0.460.0
@@ -75,16 +75,16 @@ importers:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
       react-markdown:
-        specifier: ^9.0.1
+        specifier: ^9.1.0
         version: 9.1.0(@types/react@18.2.7)(react@18.2.0)
       remark-gfm:
-        specifier: ^4.0.0
+        specifier: ^4.0.1
         version: 4.0.1
       sonner:
-        specifier: ^1.5.0
+        specifier: ^1.7.4
         version: 1.7.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       tailwind-merge:
-        specifier: ^2.5.4
+        specifier: ^2.6.0
         version: 2.6.0
       tailwindcss:
         specifier: 3.4.15
@@ -99,8 +99,11 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
       usehooks-ts:
-        specifier: ^3.1.0
+        specifier: ^3.1.1
         version: 3.1.1(react@18.2.0)
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
 
 packages:
 
@@ -2265,38 +2268,41 @@ packages:
   zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
 
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
 
-  '@ai-sdk/gateway@2.0.13(zod@3.21.4)':
+  '@ai-sdk/gateway@2.0.13(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@3.21.4)
+      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.12)
       '@vercel/oidc': 3.0.5
-      zod: 3.21.4
+      zod: 4.1.12
 
-  '@ai-sdk/provider-utils@3.0.17(zod@3.21.4)':
+  '@ai-sdk/provider-utils@3.0.17(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 3.21.4
+      zod: 4.1.12
 
   '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@2.0.99(react@18.2.0)(zod@3.21.4)':
+  '@ai-sdk/react@2.0.99(react@18.2.0)(zod@4.1.12)':
     dependencies:
-      '@ai-sdk/provider-utils': 3.0.17(zod@3.21.4)
-      ai: 5.0.99(zod@3.21.4)
+      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.12)
+      ai: 5.0.99(zod@4.1.12)
       react: 18.2.0
       swr: 2.3.6(react@18.2.0)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 3.21.4
+      zod: 4.1.12
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -2613,13 +2619,13 @@ snapshots:
 
   acorn@8.15.0: {}
 
-  ai@5.0.99(zod@3.21.4):
+  ai@5.0.99(zod@4.1.12):
     dependencies:
-      '@ai-sdk/gateway': 2.0.13(zod@3.21.4)
+      '@ai-sdk/gateway': 2.0.13(zod@4.1.12)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@3.21.4)
+      '@ai-sdk/provider-utils': 3.0.17(zod@4.1.12)
       '@opentelemetry/api': 1.9.0
-      zod: 3.21.4
+      zod: 4.1.12
 
   ajv@6.12.6:
     dependencies:
@@ -3066,7 +3072,7 @@ snapshots:
       eslint: 8.41.0
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(eslint@8.41.0))(eslint@8.41.0)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.41.0)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.41.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.41.0)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.41.0))(eslint@8.41.0))(eslint@8.41.0)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.41.0)
       eslint-plugin-react: 7.37.5(eslint@8.41.0)
       eslint-plugin-react-hooks: 4.6.2(eslint@8.41.0)
@@ -3096,7 +3102,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.41.0)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.41.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.41.0)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.41.0))(eslint@8.41.0))(eslint@8.41.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -3111,7 +3117,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.41.0)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1)(eslint@8.41.0):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.41.0)(typescript@5.0.4))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(eslint@8.41.0))(eslint@8.41.0))(eslint@8.41.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -4918,5 +4924,7 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.21.4: {}
+
+  zod@4.1.12: {}
 
   zwitch@2.0.4: {}
